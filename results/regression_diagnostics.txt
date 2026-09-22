@@ -1,0 +1,9 @@
+Model: cbind(QBER, LogSKR) ~ VOA_c * NoiseCondition
+Attenuation center (dB): 21.6938388626
+Pillai tests are sequential (Type I) in the displayed formula order.
+Classical standard errors and reference p-values assume independent errors and suitable covariance structure.
+Repeated within-setting measurements may be dependent; no run-level identifiers support independent-run validation.
+QBER is bounded; log-SKR has a point mass at zero. Linear trends and Gaussian residual assumptions are approximations.
+Observed-row fitted QBER outside [0,1]: 0
+Observed-row fitted log-SKR below zero: 0
+Residual/fitted and Q-Q plots are diagnostic evidence; no causal conclusions or population-level significance claims are made.

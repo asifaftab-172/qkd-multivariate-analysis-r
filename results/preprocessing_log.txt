@@ -1,0 +1,6 @@
+Input mode: Five original Zenodo CSV files
+Rows: 2110
+Missing values across all fields: 0
+Repeated five-field measurement tuples retained: 59
+No imputation or outlier deletion was performed.
+Zero SKR retained; LogSKR = log10(SKR + 1); PCA/clusters use sample-SD standardization.

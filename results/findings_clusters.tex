@@ -1,0 +1,8 @@
+The geometric elbow selects the candidate $k=3$. At this cut, mean silhouette width is 0.668 for the final K-means solution and 0.595 for Ward clustering. Across the tested cuts, the largest mean silhouettes occur at $k=7$ (K-means) and $k=7$ (Ward). The elbow is a compact-summary heuristic, not proof of a uniquely optimal number of physical regimes.
+
+The Ward dendrogram cut lies between merge heights 33.92 and 56.42. The adjusted Rand index comparing K-means and Ward memberships is 0.650 (1 denotes identical partitions; approximately 0 denotes chance-level agreement). Both methods use the same standardized variables, so agreement is descriptive and does not establish independent validation.
+
+Cluster 1 ($n=285$) has mean attenuation 29.48 dB, mean QBER 0.0731, mean log-SKR 0.04, and 97.2\% zero SKR; its largest condition share is 12 dBm (46.3\%). Cluster 2 ($n=856$) has mean attenuation 27.08 dB, mean QBER 0.0536, mean log-SKR 3.30, and 0.0\% zero SKR; its largest condition share is Baseline (31.0\%). Cluster 3 ($n=969$) has mean attenuation 14.64 dB, mean QBER 0.0350, mean log-SKR 5.02, and 0.0\% zero SKR; its largest condition share is 12 dBm (36.9\%).
+
+
+Every fitted cluster contains observations from all five experimental conditions. The clusters therefore describe near-collapse, reduced-throughput, and higher-throughput performance regimes rather than recovering the injection labels. Labels are ordered by increasing mean log-SKR, so their numeric ordering follows throughput in this solution.

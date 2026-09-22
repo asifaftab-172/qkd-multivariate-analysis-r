@@ -1,4 +1,6 @@
 "Metric","Value"
-"Held-out accuracy",0.376377952755906
+"Held-out accuracy",0.392125984251968
+"Training-majority baseline accuracy",0.267716535433071
+"Macro recall",0.321812344656172
 "Training observations",1475
 "Test observations",635

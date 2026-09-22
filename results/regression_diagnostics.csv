@@ -1,0 +1,3 @@
+"Outcome","ResidualSkewness","AbsResidualFittedCorrelation","MaximumCooksDistance","FittedOutsidePhysicalRange"
+"QBER",0.259420095871974,0.253683707894736,0.00718602834986626,0
+"LogSKR",-1.20958885344704,-0.454914208657651,0.00549957513571581,0

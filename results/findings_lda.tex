@@ -1,0 +1,11 @@
+The fixed stratified split uses 1475 training and 635 test rows. LDA correctly classifies 249 of 635 test observations, giving accuracy 39.2\%. Always predicting the training-majority class (12 dBm) gives 26.8\% on the same test rows, so the accuracy difference is 12.4 percentage points. Macro recall is 32.2\%, which weights the five conditions equally.
+
+Class recall ranges from 0.0\% to 83.5\%; the lowest recall includes 3 dBm (0 correctly classified out of 120). Each heatmap cell shows a count and its percentage of the actual class, and the gold diagonal marks correct predictions. Off-diagonal mass therefore makes the model's errors visible even when class sizes differ. No test observations were predicted as 3 dBm or 7 dBm; precision is therefore undefined for those classes.
+
+These estimates concern held-out rows from the same campaign. Repeated measurements at shared settings can occur in both partitions; this is not validation on independent runs or unseen operating conditions. LDA's common within-class covariance and approximately Gaussian predictor assumptions are also approximations for bounded QBER and zero-heavy SKR.
+
+
+The largest absolute standardized coefficient in LD1 is LogSKR (+3.236), and in LD2 it is QBER (-3.406). These identify the strongest conditional contributions to the two plotted directions, not independent causal effects. Because attenuation, error, and throughput are strongly correlated, substantial coefficients can coexist with poor class separation.
+
+
+Baseline has recall 71.1\%; its most frequent error is prediction as 12 dBm (41 of 142 actual observations, 28.9\%). 3 dBm has recall 0.0\%; its most frequent error is prediction as Baseline (75 of 120 actual observations, 62.5\%). 7 dBm has recall 0.0\%; its most frequent error is prediction as Baseline (60 of 107 actual observations, 56.1\%). 9 dBm has recall 6.2\%; its most frequent error is prediction as Baseline (46 of 96 actual observations, 47.9\%). 12 dBm has recall 83.5\%; its most frequent error is prediction as Baseline (15 of 170 actual observations, 8.8\%).

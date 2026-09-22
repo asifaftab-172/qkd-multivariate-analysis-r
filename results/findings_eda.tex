@@ -1,0 +1,8 @@
+The analysis contains 2110 measurements across five conditions, with group sizes ranging from 319 to 566. Attenuation spans 10.0--30.0 dB, QBER spans 0.0261--0.0865, and raw SKR spans 0--354598 bits/s. There are 277 zero-SKR measurements (13.1\%); these are retained, and the $\log_{10}(\mathrm{SKR}+1)$ transformation preserves their value at zero.
+
+The strongest absolute pairwise correlation is between LogSKR and QBER ($r=-0.957$). In particular, attenuation correlates 0.878 with QBER and -0.824 with transformed SKR. These pooled associations combine within-condition trends and differences in the sampled condition/attenuation mix; they do not by themselves isolate a causal effect of injected power.
+
+For example, mean sampled attenuation is 23.13 dB for baseline and 19.61 dB for 12 dBm, while their median raw SKR values are 3541 and 91610 bits/s, respectively. Those medians summarize different attenuation distributions. A raw median comparison must therefore not be interpreted as a controlled injected-power effect.
+
+
+At the shared attenuation of 28 dB, mean SKR is 2969 bits/s for baseline and 0 bits/s for 12 dBm. The 12 dBm condition also has 22.1\% zero-throughput readings overall. This matched-setting comparison explains why its high pooled median is not evidence of better performance under stronger injection.
