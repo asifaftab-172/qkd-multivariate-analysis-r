@@ -1,248 +1,271 @@
 \documentclass[11pt]{article}
-\usepackage[letterpaper,margin=0.85in]{geometry}
-\usepackage{graphicx}
-\usepackage{booktabs}
-\usepackage{array}
-\usepackage{float}
-\usepackage{caption}
-\usepackage{subcaption}
-\usepackage{amsmath}
-\usepackage{siunitx}
+\usepackage[letterpaper,margin=0.8in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx,booktabs,array,tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor,caption,subcaption,microtype}
+\usepackage{enumitem,fancyhdr,titlesec,placeins,needspace}
 \usepackage[hidelinks]{hyperref}
-\usepackage{xcolor}
-\usepackage{microtype}
-\usepackage{enumitem}
-\usepackage{setspace}
-\usepackage{fancyhdr}
-\usepackage{url}
-
-\IfFileExists{../results/results.tex}{\input{../results/results.tex}}{
-\newcommand{\NObs}{--}\newcommand{\NMissing}{--}
-\newcommand{\PCOneVar}{--}\newcommand{\PCTwoVar}{--}\newcommand{\PCTwoCum}{--}
-\newcommand{\NPCOptimal}{--}\newcommand{\PCOneTop}{--}\newcommand{\PCTwoTop}{--}
-\newcommand{\KOptimal}{--}\newcommand{\LDAAccuracy}{--}\newcommand{\TrainN}{--}\newcommand{\TestN}{--}
-\newcommand{\LDOneTop}{--}\newcommand{\LDTwoTop}{--}}
-
+\definecolor{navy}{HTML}{19344C}
+\definecolor{teal}{HTML}{147D86}
+\definecolor{ink}{HTML}{253648}
+\definecolor{muted}{HTML}{566679}
+\hypersetup{pdftitle={Multivariate Analysis of QKD Coexistence},pdfauthor={Asif Akhtab Ronggon}}
+\titleformat{\section}{\Large\sffamily\bfseries\color{navy}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries\color{teal}}{\thesubsection}{0.65em}{}
+\titlespacing*{\section}{0pt}{18pt}{9pt}
+\titlespacing*{\subsection}{0pt}{12pt}{6pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlength{\headheight}{15pt}
+\setlength{\emergencystretch}{2em}
+\renewcommand{\arraystretch}{1.2}
+\captionsetup{font=small,labelfont={bf,color=navy},justification=raggedright,singlelinecheck=false}
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{M5 Assignment 5.1}
-\rhead{Asif Akhtab Ronggon}
-\cfoot{\thepage}
-\setlength{\headheight}{14pt}
-\setstretch{1.03}
-\captionsetup{font=small,labelfont=bf}
-
-\title{\textbf{Multivariate Analysis of Quantum Key Distribution Performance\\under Classical-Signal Coexistence}}
-\author{Asif Akhtab Ronggon}
-\date{September 2026}
-
+\lhead{\small\sffamily\color{muted}M5 Assignment 5.1 \enspace | \enspace QKD coexistence}
+\rhead{\small\sffamily\color{muted}Asif Akhtab Ronggon}
+\cfoot{\small\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlist[itemize]{leftmargin=1.2em,itemsep=2pt,topsep=3pt}
+\input{../results/results.tex}
+\newcommand{\metric}[2]{\begin{minipage}[t]{0.29\linewidth}\centering\sffamily\color{teal}\LARGE\bfseries #1\par\vspace{3pt}\small\normalfont\color{ink}#2\end{minipage}}
+\newcommand{\fullfigure}[3]{\begin{figure}[!htbp]\centering\includegraphics[width=#2\linewidth]{../figures/#1}\caption{#3}\end{figure}}
+\newcommand{\resulttable}[2]{\begin{table}[!htbp]\centering\small\caption{#2}\input{../results/#1}\end{table}}
 \begin{document}
-\maketitle
+\thispagestyle{empty}
+{\sffamily\small\color{teal}\bfseries MULTIVARIATE ANALYSIS IN R\par}
+\vspace{8pt}
+{\sffamily\huge\bfseries\color{navy}Understanding QKD performance\\[5pt]under classical-signal coexistence\par}
+\vspace{9pt}
+{\large Asif Akhtab Ronggon}\par
+{\color{muted}M5 Assignment 5.1 \enspace | \enspace September 2026}
+\vspace{10pt}
+{\color{teal}\hrule height 1pt}
+\vspace{15pt}
+\noindent\metric{\NObs}{Experimental observations}\hfill
+\metric{\PCTwoCum}{Variance retained by PC1--PC2}\hfill
+\metric{\LDAAccuracy}{Held-out LDA accuracy}
+\vspace{17pt}
 
-\section{Introduction and Dataset Description}
-Quantum key distribution (QKD) systems must maintain low quantum bit error rate (QBER) and a usable secure key rate (SKR) while operating in optical environments that may also carry classical traffic. This report applies multivariate statistical methods to experimental QKD coexistence measurements from the TCD/CONNECT testbed published by Horgan et al. on Zenodo \cite{horgan2026}. The source record contains measurement-level QBER and SKR observations collected under controlled attenuation, classical-signal injection, and fibre-length conditions.
+\section*{Research question and main contribution}
+How do attenuation, quantum bit error rate (QBER), and secure key rate (SKR) vary together, and how well do these measurements distinguish five classical-signal conditions? This analysis combines unsupervised structure discovery, supervised classification, and multivariate regression. These methods answer different questions: a compact performance pattern need not accurately identify the condition that produced it.
 
-To isolate the effect of injected classical power from the separate effect of added fibre length, this analysis uses the five \SI{0}{km} coexistence conditions: no injected signal (baseline), and injected powers of 3, 7, 9, and \SI{12}{dBm}. The resulting analysis dataset contains \NObs{} measurement-level observations. The quantitative variables are optical attenuation (\texttt{VOA\_dB}), QBER, and secure key rate. Because SKR spans orders of magnitude and reaches zero near link collapse, the transformed variable $\log_{10}(\mathrm{SKR}+1)$ is used in PCA, clustering, and LDA. The categorical grouping variable is the injected-noise condition.
+PCA summarizes joint variation; K-means and hierarchical clustering describe operating regimes; LDA evaluates recovery of known labels; and a two-response regression estimates attenuation and condition associations jointly. All reported numbers, tables, and figures are generated by the accompanying R script.
 
-The analysis addresses three complementary questions: (i) what low-dimensional structure explains the joint variation in attenuation, QBER, and SKR; (ii) whether the measurements form natural unsupervised clusters; and (iii) how effectively the quantitative measurements discriminate among the five predefined coexistence conditions.
+\section*{Dataset and scope}
+The source is Horgan et al.'s version-2 Zenodo dataset, DOI \href{https://doi.org/10.5281/zenodo.21792844}{10.5281/zenodo.21792844} \cite{horgan}. Five CSV files contain baseline measurements and classical-signal injections of 3, 7, 9, and 12 dBm. This subset concerns one QKD system; it is not an analysis of every device in the broader record. Restricting added fibre to 0 km holds that recorded factor fixed. It does not balance attenuation across conditions or establish a causal power effect.
 
-\section{Data Preprocessing and Exploratory Analysis}
-The five CSV files were downloaded directly from the version-2 Zenodo record and combined in R. Required columns, numeric types, finite values, recognized conditions, and nonzero predictor standard deviations were checked before analysis. The dataset contains \NMissing{} missing values across all fields; missing values in required analysis fields cause the script to stop. QBER values outside $[0,1]$ and negative SKR values also cause validation to fail. Zero-SKR observations were retained because they represent physically meaningful key-generation collapse rather than missing data.
+\section*{Interdisciplinary connection}
+The interpretation connects quantum communications with reliability engineering and statistical decision-making. PCA and clustering summarize multivariate operating states, while the confusion matrix exposes the limits of diagnosing an experimental condition from observed performance. In a monitoring application, confusing conditions and overlooking low-throughput states have different consequences. A defensible decision process examines class-specific errors and usable throughput together rather than relying on one accuracy number.
 
-For multivariate methods, $\log_{10}(\mathrm{SKR}+1)$ was used to reduce the strong right skew in raw SKR while retaining zeros. The three quantitative variables were standardized to zero mean and unit variance before PCA and clustering so that the analysis was not dominated by their different physical units and numerical scales.
-
-\begin{table}[H]
-\centering
-\caption{Descriptive statistics by injected classical-signal condition.}
-\label{tab:desc}
-\small
-\IfFileExists{../results/descriptive_table.tex}{\input{../results/descriptive_table.tex}}{Results generated when the R analysis runs.}
+\clearpage
+\section{Data preprocessing and exploratory analysis}
+\subsection{Variables, validation, and transformations}
+\begin{table}[!htbp]
+\centering\small
+\caption{Analysis variables and their roles.}
+\begin{tabularx}{\linewidth}{@{}l l X@{}}
+\toprule
+Variable & Type / unit & Role and treatment \\
+\midrule
+\texttt{NoiseCondition} & Five-level factor & LDA classes; factor predictor in regression. \\
+\texttt{Sweep\_km} & Numeric / km & Fixed at zero; excluded as a constant predictor. \\
+\texttt{VOA\_dB} & Numeric / dB & Attenuation predictor. \\
+\texttt{QBER} & Numeric / fraction & Error rate; validated in $[0,1]$. \\
+\texttt{SecureKeyRate\_bps} & Numeric / bits s$^{-1}$ & Nonnegative throughput; zero is valid. \\
+\texttt{LogSKR} & Numeric / log scale & $\log_{10}(\mathrm{SKR}+1)$, replacing raw SKR in multivariate methods. \\
+\bottomrule
+\end{tabularx}
 \end{table}
 
-Figure~\ref{fig:eda} provides two complementary views of the data. The QBER curves show how error behavior changes with attenuation across coexistence conditions, while the log-SKR curves show the corresponding reduction in usable secure-key throughput. Examining both responses is important: a QKD operating point can exhibit a modest QBER change while the usable key rate is already deteriorating substantially.
+The script checks required columns, numeric types, finite values, permitted labels, sample sizes, and nonzero predictor variability before analysis. There are \NMissing{} missing values in the supplied dataset, so no imputation or case deletion is needed. Missing or invalid required values cause an explicit error rather than silently changing the analysis sample. Repeated equal readings are retained because identical values do not establish duplicate records; the selected files do not provide unique run identifiers.
 
-\begin{figure}[H]
+The log transform reduces SKR's scale disparity while retaining zero-throughput observations. Raw SKR and its transform are not both included as PCA predictors, which would count the same quantity twice. PCA and clustering use standardized variables. LDA scaling is estimated on training data only. Regression preserves response units and centers attenuation to make its intercept interpretable.
+
+\resulttable{descriptive_table.tex}{Condition-level descriptive statistics. Pooled summaries reflect each condition's observed attenuation distribution.}
+\input{../results/findings_eda.tex}
+\FloatBarrier
+
+\subsection{Attenuation-dependent patterns}
+\begin{figure}[!htbp]
 \centering
-\begin{subfigure}[t]{0.49\textwidth}
-\centering
+\begin{subfigure}[t]{0.49\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/03_qber_vs_attenuation.pdf}
-\caption{QBER versus attenuation.}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.49\textwidth}
-\centering
+\caption{Error-rate response.}\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/04_logskr_vs_attenuation.pdf}
-\caption{Log-SKR versus attenuation.}
-\end{subfigure}
-\caption{Exploratory views of QKD performance across injected-signal conditions. Lines show condition-wise means at each attenuation setting; faint points show individual measurements.}
-\label{fig:eda}
+\caption{Key-throughput response.}\end{subfigure}
+\caption{Measurements and condition-specific mean trends. Compare conditions at shared attenuation settings; pooled medians alone can reverse the apparent condition ordering.}
+\label{fig:trends}
 \end{figure}
 
-The scatterplot matrix and correlation matrix (Figure~\ref{fig:corr}) are used to assess pairwise relationships before applying multivariate methods. These visualizations motivate PCA because several variables exhibit substantial dependence rather than contributing fully independent information.
+Figure~\ref{fig:trends} distinguishes within-condition attenuation trends from between-condition differences. Near key-generation collapse, a moderate change in QBER can accompany a large throughput loss. Lines connecting measured setting means are descriptive summaries, not fitted physical laws or uncertainty intervals.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
-\begin{subfigure}[t]{0.49\textwidth}
-\centering
+\begin{subfigure}[t]{0.55\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/01_scatterplot_matrix.pdf}
-\caption{Scatterplot matrix.}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.49\textwidth}
-\centering
+\caption{Scatterplot matrix.}\end{subfigure}\hfill
+\begin{subfigure}[t]{0.43\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/02_correlation_matrix.pdf}
-\caption{Correlation matrix.}
-\end{subfigure}
-\caption{Pairwise structure among attenuation, QBER, and transformed secure key rate.}
-\label{fig:corr}
+\caption{Pearson correlations.}\end{subfigure}
+\caption{Pooled pairwise dependence. Discrete measurement settings and nonlinearity remain visible in the scatterplots.}
 \end{figure}
+Strong dependence motivates dimension reduction, but correlation does not establish causation. Attenuation is a design variable as well as a predictor, so the multivariate pattern partly reflects how the experiment was sampled.
+\FloatBarrier
 
-\section{Principal Component Analysis}
-PCA was performed on the standardized variables $\{\mathrm{VOA},\mathrm{QBER},\log_{10}(\mathrm{SKR}+1)\}$. If $\mathbf{Z}$ denotes the standardized data matrix, PCA finds orthogonal directions $\mathbf{w}_j$ that maximize projected variance, with scores $\mathbf{t}_j=\mathbf{Z}\mathbf{w}_j$.
+\section{Principal component analysis}
+\subsection{Method and component selection}
+The R function \texttt{prcomp(..., center=TRUE, scale.=TRUE)} applies PCA to attenuation, QBER, and LogSKR \cite{prcomp}. If $\mathbf Z$ is the standardized matrix, scores are $\mathbf t_j=\mathbf Z\mathbf w_j$, with orthogonal loading vectors ordered by explained variance. Scaling prevents the predictor with the largest numerical units from dominating.
 
-\begin{table}[H]
+The retention rule is the smallest number of components reaching at least 80\% cumulative explained variance, supported by the scree plot. It selects \NPCOptimal{} component(s). A two-dimensional biplot remains useful for inspecting the smaller second direction and condition overlap; plotting two axes does not mean that two are required by the retention rule.
+\resulttable{pca_table.tex}{Eigenvalues and explained variance of all principal components.}
+\resulttable{pca_loadings_table.tex}{PCA loading vectors. A simultaneous sign reversal of a component and its scores leaves the solution unchanged.}
+\input{../results/findings_pca.tex}
+
+\begin{figure}[!htbp]
 \centering
-\caption{PCA eigenvalues and explained variance.}
-\label{tab:pca_var}
-\small
-\IfFileExists{../results/pca_table.tex}{\input{../results/pca_table.tex}}{Results generated when the R analysis runs.}
-\end{table}
-
-PC1 explains \PCOneVar{} of standardized variance and PC2 explains an additional \PCTwoVar{}, for \PCTwoCum{} cumulatively. Using an 80\% cumulative-variance criterion requires \NPCOptimal{} principal component(s). The largest absolute loading on PC1 is associated with \texttt{\PCOneTop}, while the strongest loading on PC2 is \texttt{\PCTwoTop}. The loading table in Table~\ref{tab:pca_load} makes the direction and relative magnitude of each contribution explicit.
-
-\begin{table}[H]
-\centering
-\caption{PCA loadings for the standardized quantitative variables.}
-\label{tab:pca_load}
-\small
-\IfFileExists{../results/pca_loadings_table.tex}{\input{../results/pca_loadings_table.tex}}{Results generated when the R analysis runs.}
-\end{table}
-
-\begin{figure}[H]
-\centering
-\begin{subfigure}[t]{0.45\textwidth}
-\centering
+\begin{subfigure}[t]{0.40\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/05_pca_scree.pdf}
-\caption{Scree plot.}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.53\textwidth}
-\centering
+\caption{Scree and retention evidence.}\end{subfigure}\hfill
+\begin{subfigure}[t]{0.58\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/06_pca_biplot.pdf}
-\caption{PC1--PC2 biplot.}
-\end{subfigure}
-\caption{PCA dimensionality and the geometry of the QKD observations. The biplot overlays variable loadings on observation scores.}
-\label{fig:pca}
+\caption{Scores and loading directions.}\end{subfigure}
+\caption{PCA describes covariance without using class labels. Loading arrows are rescaled for visibility; their displayed lengths cannot be compared directly with distances between observations.}
 \end{figure}
+Explained variance measures reconstruction, not classification accuracy. A low-variance direction may still matter for distinguishing groups or rare operating states. LDA therefore retains all three predictors rather than automatically discarding the smaller PCs.
+\FloatBarrier
 
-The biplot should not be interpreted as a supervised classifier: the noise-condition labels are overlaid only after PCA is computed. Thus, any visible separation indicates that coexistence conditions correspond to naturally different regions of the measured multivariate performance space. Conversely, overlap indicates that attenuation-dependent QKD behavior can be similar across nearby injected-power conditions.
+\section{Cluster analysis}
+\subsection{K-means and Ward hierarchical clustering}
+Both methods use the three standardized variables with Euclidean geometry. K-means minimizes squared distance to centroids and uses multiple random starts to reduce initialization sensitivity. Ward's \texttt{ward.D2} method joins groups to limit the increase in within-cluster variation. Neither fit uses condition labels.
 
-\section{Cluster Analysis}
-\subsection{K-means Clustering}
-K-means clustering was applied to the standardized quantitative variables. For a selected number of clusters $k$, the method minimizes the within-cluster objective
-\[
-\sum_{r=1}^{k}\sum_{\mathbf{z}_i\in C_r}\|\mathbf{z}_i-\boldsymbol{\mu}_r\|_2^2,
-\]
-where $\boldsymbol{\mu}_r$ is the centroid of cluster $C_r$. Models for $k=1,\ldots,10$ were fit with multiple random starts. The elbow curve was supplemented by a geometric knee estimate based on the point farthest from the chord joining the first and final WSS values. This selected $k=\KOptimal$ rather than forcing the number of clusters to equal the five known noise labels.
+K-means candidates span $k=1,\ldots,10$. The elbow estimate uses the largest deviation from the chord joining the first and last within-cluster sum-of-squares values. The dendrogram and separation diagnostics assess whether the selected cut describes useful structure. A selected $k$ is a modeling choice, not proof of a unique natural number of groups.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
-\begin{subfigure}[t]{0.47\textwidth}
-\centering
+\begin{subfigure}[t]{0.47\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/07_elbow_method.pdf}
-\caption{Elbow analysis.}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.51\textwidth}
-\centering
-\includegraphics[width=\linewidth]{../figures/08_kmeans_clusters_pca.pdf}
-\caption{K-means clusters in PCA space.}
-\end{subfigure}
-\caption{Selection and visualization of the K-means cluster solution.}
-\label{fig:kmeans}
-\end{figure}
-
-The fact that the data-driven $k$ need not equal five is itself informative. K-means is unaware of the experimental condition labels and groups observations only by similarity in attenuation, QBER, and transformed SKR. Therefore, multiple injected-power conditions may occupy a common performance regime, while a single nominal condition can span more than one regime as attenuation increases toward link collapse.
-
-\subsection{Hierarchical Clustering}
-Agglomerative hierarchical clustering was performed with Euclidean distance on standardized variables and Ward's minimum-variance linkage. The dendrogram in Figure~\ref{fig:hier} shows the nested structure without requiring a fixed number of clusters in advance. For direct comparison with K-means, the tree was cut at $k=\KOptimal$.
-
-\begin{figure}[H]
-\centering
-\begin{subfigure}[t]{0.56\textwidth}
-\centering
+\caption{K-means selection evidence.}\end{subfigure}\hfill
+\begin{subfigure}[t]{0.51\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/09_hierarchical_dendrogram.pdf}
-\caption{Ward-linkage dendrogram.}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.42\textwidth}
+\caption{Ward hierarchy and selected cut.}\end{subfigure}
+\caption{Cluster-number assessment: diminishing returns in the elbow plot and larger merges in the hierarchy provide complementary evidence.}
+\end{figure}
+\input{../results/findings_clusters.tex}
+\resulttable{cluster_profiles_table.tex}{K-means profiles in interpretable units. Cluster labels identify a fitted partition, not known experimental conditions.}
+
+\begin{figure}[!htbp]
 \centering
+\begin{subfigure}[t]{0.49\linewidth}\centering
+\includegraphics[width=\linewidth]{../figures/08_kmeans_clusters_pca.pdf}
+\caption{K-means partition.}\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/10_hierarchical_clusters_pca.pdf}
-\caption{Tree cut visualized in PCA space.}
-\end{subfigure}
-\caption{Hierarchical clustering of the QKD measurements.}
-\label{fig:hier}
+\caption{Ward partition at the same $k$.}\end{subfigure}
+\caption{Partitions projected onto the same PCA axes. Fits use all three standardized variables; label numbers are arbitrary within each method.}
 \end{figure}
+\fullfigure{13_cluster_profiles.pdf}{0.86}{Standardized profiles show which features characterize each operating regime. Zero is the full-sample mean, not a physical safety threshold.}
+Clustering describes regions of performance space, not causal mechanisms or validated alarm states. Attenuation produces visible bands, so some separation reflects experimental design. Reading profiles and condition cross-tabulations together avoids equating an unsupervised partition with the five injection labels.
+\FloatBarrier
 
-The PCA projections allow a visual comparison of the K-means and hierarchical partitions, but no formal agreement or stability measure is reported. Apparent similarities are therefore exploratory evidence of possible performance regimes. Differences between the two methods are also expected: K-means favors approximately centroid-shaped groups, whereas Ward linkage constructs clusters from a sequence of local merges. Cluster membership describes similarity in the measured variables and does not establish independent physical states or replace the known experimental labels.
+\section{Linear discriminant analysis}
+\subsection{Groups, discriminant functions, and scores}
+The target is the five-level injection condition; predictors are attenuation, QBER, and LogSKR. A seeded, stratified 70/30 split yields \TrainN{} training observations and \TestN{} test observations. Training means and standard deviations scale both partitions. \texttt{MASS::lda()} uses training class proportions as priors; the untouched test partition supplies the classification evaluation \cite{lda}.
 
-\section{Linear Discriminant Analysis}
-LDA was used as the supervised counterpart to PCA and clustering. The predefined response variable was injected-signal condition with five classes. Predictors were standardized attenuation, QBER, and transformed SKR. To evaluate classification beyond resubstitution accuracy, each class was split approximately 70/30 into training and held-out test observations using a fixed random seed. The resulting model used \TrainN{} training observations and \TestN{} held-out observations.
-
-LDA seeks linear combinations
+LDA finds directions with large between-group separation relative to pooled within-group variation. Three predictors and five classes permit at most three discriminant functions:
 \[
-LD_j = a_{j1}z_{\mathrm{VOA}} + a_{j2}z_{\mathrm{QBER}} + a_{j3}z_{\log(\mathrm{SKR}+1)}
+LD_j=a_{j1}z_{\mathrm{VOA}}+a_{j2}z_{\mathrm{QBER}}+a_{j3}z_{\mathrm{LogSKR}}.
 \]
-that maximize separation among predefined groups relative to within-group variation. Standardizing with training-set means and standard deviations puts the coefficients on a common predictor scale. Their magnitudes describe conditional contributions within each discriminant direction; correlated predictors mean that these magnitudes are not independent measures of variable importance. The largest absolute coefficient on LD1 corresponds to \texttt{\LDOneTop}; on LD2 it is \texttt{\LDTwoTop}.
+Coefficient magnitudes indicate conditional contributions within each standardized direction. With correlated predictors, they are not independent or causal importance measures. Reversing an entire function's sign does not change its meaning.
+\resulttable{lda_coefficients_table.tex}{Discriminant coefficients for the standardized predictors.}
+\fullfigure{11_lda_separation.pdf}{0.88}{LDA score visualization. Group overlap is interpreted alongside held-out classification results rather than treated as an accuracy estimate.}
+\FloatBarrier
 
-\begin{table}[H]
-\centering
-\caption{LDA scaling coefficients for standardized predictors.}
-\label{tab:lda_coef}
-\small
-\IfFileExists{../results/lda_coefficients_table.tex}{\input{../results/lda_coefficients_table.tex}}{Results generated when the R analysis runs.}
-\end{table}
+\subsection{Performance and difficult groups}
+\fullfigure{12_lda_confusion_matrix.pdf}{0.94}{Held-out confusion matrix. Cells contain counts and percentages of their actual-class row. The diagonal shows correct predictions; off-diagonal cells identify specific errors.}
+\resulttable{lda_metrics_table.tex}{Class-specific evaluation. Recall is the fraction of an actual group recovered; precision is the fraction of a predicted group that is correct. Unavailable precision is shown explicitly for an unpredicted class.}
+\input{../results/findings_lda.tex}
 
-\begin{figure}[H]
-\centering
-\begin{subfigure}[t]{0.51\textwidth}
-\centering
-\includegraphics[width=\linewidth]{../figures/11_lda_separation.pdf}
-\caption{First two discriminant dimensions.}
-\end{subfigure}\hfill
-\begin{subfigure}[t]{0.47\textwidth}
-\centering
-\includegraphics[width=\linewidth]{../figures/12_lda_confusion_matrix.pdf}
-\caption{Held-out confusion matrix.}
-\end{subfigure}
-\caption{Supervised separation and classification performance of LDA.}
-\label{fig:lda}
-\end{figure}
+Row normalization makes errors comparable despite unequal class sizes. Accuracy is interpreted against the majority-class baseline and macro-average recall, which gives each actual class equal weight. Exceeding the baseline can coexist with failure to recover multiple groups. Those failures are substantive evidence about overlap and model suitability, not a reason to suppress results.
 
-\begin{table}[H]
-\centering
-\caption{Held-out LDA classification counts.}
-\label{tab:conf}
-\small
-\IfFileExists{../results/lda_confusion_table.tex}{\input{../results/lda_confusion_table.tex}}{Results generated when the R analysis runs.}
-\end{table}
+\subsection{Validation limits}
+The split samples rows from the same campaign. Similar measurements at shared settings can occur in both partitions, and independent run identifiers are absent. Performance therefore describes within-campaign held-out observations, not new devices, runs, or fibre lengths. LDA's common-covariance and approximately Gaussian class assumptions are imperfect for curved trajectories, zero-SKR pileups, and unequal spreads. Future work should hold out complete runs or operating settings and compare more flexible classifiers before operational use.
+\FloatBarrier
 
-The held-out classification accuracy is \textbf{\LDAAccuracy}. Misclassifications should be read alongside the LD1--LD2 plot: overlap between adjacent coexistence conditions indicates that the measured performance variables do not uniquely encode injected power at every attenuation. This is physically plausible because attenuation itself changes QBER and SKR, creating partially overlapping performance states. LDA nevertheless quantifies how much of the predefined coexistence condition can be recovered from the joint measurement vector.
+\section{Multivariate regression analysis}
+\subsection{A model with two quantitative responses}
+The rubric includes multivariate regression in addition to the task list's LDA. To address both, this section fits a genuine multivariate multiple linear regression:
+\[
+\begin{bmatrix}\mathrm{QBER}_i&\mathrm{LogSKR}_i\end{bmatrix}
+=\mathbf x_i^\mathsf{T}\mathbf B+\boldsymbol\varepsilon_i.
+\]
+The predictor vector includes an intercept, centered attenuation, four condition indicators with baseline as reference, and their attenuation interactions. The R model is
+\begin{center}\small\texttt{lm(cbind(QBER, LogSKR) \textasciitilde{} VOA\_c * NoiseCondition)}.\end{center}
+Condition coefficients compare groups at the common centering value. Interactions describe slope differences from baseline. Responses keep their own units, so a QBER coefficient is not directly comparable in magnitude with a LogSKR coefficient.
 
-This accuracy measures prediction of held-out rows within the same experimental campaign. Measurements at shared attenuation and noise settings can occur in both partitions, and repeated measurements may be dependent. The estimate does not establish performance on independent experimental runs or previously unseen operating settings; validation grouped by run or experimental setting would be needed to assess that broader generalization. LDA also assumes common within-class covariance and approximately Gaussian class-conditional predictors, assumptions that bounded QBER and zero-heavy SKR may not satisfy.
+Outcome-specific coefficients and fit summaries are complemented by joint tests using Pillai's trace \cite{manova}. These tests concern the response vector rather than a single outcome. Their interpretation remains conditional on the linear model and error assumptions.
+\resulttable{regression_fit_table.tex}{Outcome-specific regression fit. In-sample $R^2$ is not held-out prediction accuracy.}
+\resulttable{regression_tests_table.tex}{Joint multivariate tests with Pillai's trace. The generated interpretation identifies the tested model terms or comparisons.}
+\resulttable{regression_coefficients_table.tex}{Coefficient estimates and standard errors for both responses. Baseline is the reference; attenuation is centered.}
+\input{../results/findings_regression.tex}
+\FloatBarrier
 
-\section{Conclusion}
-This analysis demonstrates how complementary multivariate methods reveal different aspects of experimental QKD coexistence data. PCA summarizes the dominant joint variation of attenuation, QBER, and secure key rate, while K-means and hierarchical clustering identify unlabeled performance regimes without assuming that they must match the five experimental conditions. LDA then uses the known injected-signal labels to quantify supervised group separation and achieves \LDAAccuracy{} accuracy on held-out observations. Taken together, the results show that QKD performance under classical-signal coexistence is inherently multivariate: attenuation, error behavior, and usable key throughput should be interpreted jointly rather than as isolated metrics.
+\fullfigure{14_regression_fits.pdf}{0.98}{Observed performance and regression fits over attenuation. Lines describe modeled associations within the observed domain, not physical response laws or extrapolation guarantees.}
+\fullfigure{15_regression_diagnostics.pdf}{0.98}{Regression diagnostics assess the linear, constant-variance, Gaussian-error approximation.}
 
-\section*{Reproducibility Note}
-All preprocessing, statistical analyses, tables, and figures in this report are generated by the accompanying R script. The script downloads the cited Zenodo CSV files, retains the \SI{0}{km} coexistence measurements, preserves physically meaningful zero-SKR observations, and uses a fixed random seed (2026) for K-means initialization and the LDA train/test split.
+The linear form is an interpretable starting point, not a physical model of key-generation collapse. Residual curvature signals missing structure, changing spread challenges constant variance, and quantile-plot departures challenge normal-error inference. QBER is bounded and LogSKR has a mass at zero. Repeated within-setting measurements also weaken independent-error assumptions. Nominal standard errors and $p$-values are therefore exploratory. Run-level replication, flexible attenuation effects, and explicit modeling of zero throughput would strengthen follow-up analysis.
+\FloatBarrier
 
+\section{Synthesis, ethics, and conclusion}
+\subsection{What the methods jointly establish}
+PCA finds a compact representation: \NPCOptimal{} component(s) meet the 80\% rule, while two explain \PCTwoCum{} of standardized variance. K-means selects \KOptimal{} clusters at the chosen level of detail, with profiles describing operating regimes. These findings concern performance geometry; they do not imply that five injection labels are separable.
+
+LDA achieves \LDAAccuracy{} held-out accuracy, with its error pattern providing the more informative diagnostic. Regression instead estimates joint response associations with attenuation and condition, including slope differences. Together, these methods distinguish compression, grouping, label prediction, and response modeling rather than treating them as equivalent measures of success.
+
+\subsection{Reliability and responsible interpretation}
+Joint changes in error rate and key throughput can guide candidate operating-state descriptions in reliability engineering. Such descriptions require physical validation and explicit decision thresholds before becoming alarms. Low recall for a class cautions against inferring an injection label confidently from these measurements alone.
+
+Ethical practice includes preserving CC BY 4.0 attribution, retaining legitimate zero-throughput readings, documenting transformations, and reporting weak group-level performance. Neither a low QBER nor a fitted cluster certifies cryptographic security. The conclusions apply to the selected system and 0-km campaign; other devices, fibre lengths, and operational scenarios require additional evidence.
+
+\subsection{Conclusion}
+The data support substantial dimension reduction and interpretable performance regimes, but recovering every condition label is harder. A small set of correlated measurements can summarize performance well while providing limited diagnostic specificity. Multivariate regression adds a joint account of error and throughput, with nonlinearity and inference limits made explicit. The analysis offers a reproducible statistical foundation for better experimental design and validation.
+
+\section*{Reproducibility and submission}
+The R script reads the submitted combined CSV when available, or uses the five original CSVs. It validates input, creates every result and figure, records seeds and split membership, and saves \texttt{sessionInfo()}. GitHub Actions reruns the analysis and compiles the report. The submission set contains:
+\begin{itemize}
+\item \texttt{M5Assign 5.1 Data\_\_Ronggon\_Asif.R}
+\item \texttt{M5Assign 5.1 Data\_\_Ronggon\_Asif.csv}
+\item \texttt{M5Assign 5.1 Report\_\_Ronggon\_Asif.pdf}
+\end{itemize}
 \begin{thebibliography}{9}
-\bibitem{horgan2026}
-J. Horgan, N. Quigley, B. Hajar, D. Briantcev, A. Kaszubowska-Anandarajah, and D. Kilper,
-``QKD Network Characterisation and Coexistence Datasets with Standardised Performance Metrics and Experimental Methods,''
-Zenodo, version 2, 2026. DOI: \href{https://doi.org/10.5281/zenodo.21792844}{10.5281/zenodo.21792844}.
-
-\bibitem{rproject}
-R Core Team, \emph{R: A Language and Environment for Statistical Computing}. R Foundation for Statistical Computing, Vienna, Austria.
-
-\bibitem{mass}
-W. N. Venables and B. D. Ripley, \emph{Modern Applied Statistics with S}, 4th ed. Springer, 2002.
+\small
+\bibitem{horgan} J. Horgan, N. Quigley, B. Hajar, D. Briantcev, A. Kaszubowska-Anandarajah, and D. Kilper. \emph{QKD Network Characterisation and Coexistence Datasets with Standardised Performance Metrics and Experimental Methods}, v2. Zenodo, 2026. \url{https://doi.org/10.5281/zenodo.21792844}.
+\bibitem{prcomp} R Core Team. \emph{Principal Components Analysis: prcomp}. R documentation. \url{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/prcomp.html}.
+\bibitem{lda} W. N. Venables and B. D. Ripley. \emph{Modern Applied Statistics with S}, 4th ed. Springer, 2002. MASS documentation: \url{https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/lda.html}.
+\bibitem{manova} R Core Team. \emph{Summary Method for Multivariate Analysis of Variance}. R documentation. \url{https://stat.ethz.ch/R-manual/R-devel/library/stats/html/summary.manova.html}.
 \end{thebibliography}
-
+\clearpage
+\appendix
+\section{Assignment coverage}
+\begin{table}[!htbp]
+\centering\small
+\caption{Coverage of the rubric and explicit LDA tasks. This crosswalk is not a predicted grade.}
+\begin{tabularx}{\linewidth}{@{}p{0.27\linewidth} X@{}}
+\toprule
+Criterion & Evidence \\
+\midrule
+Preprocessing and visualization (20) & Section 1: source, variable roles, descriptive statistics, missing-value policy, transformations, scaling, scatterplots, correlations, and attenuation trends. \\
+PCA and interpretation (20) & Section 2: standardized PCA, every variance proportion, retention rule, scree plot, biplot, loading signs, and reduction implications. \\
+Clustering and interpretation (20) & Section 3: K-means and Ward methods, elbow and dendrogram assessment, projected clusters, profiles, and partition comparison. \\
+Multivariate regression (20) & Section 5: two responses, coefficients and interactions, joint tests, fit, visualizations, diagnostics, and limitations. \\
+Clarity and insights (20) & Structured research question, cited source, numerical interpretation, method synthesis, reliability connection, ethics, and conclusion. \\
+LDA (task list) & Section 4: predefined classes and predictors, MASS fit, coefficients, scores and group plot, held-out confusion matrix and accuracy, and difficult-class interpretation. \\
+Submission components & .R script, external dataset .csv, and PDF with the required naming pattern. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+The task list explicitly requests LDA while the rubric names multivariate regression. Both are included so neither written requirement is omitted. The instructor determines how that discrepancy is graded.
 \end{document}

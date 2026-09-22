@@ -27,6 +27,10 @@ jobs:
         with:
           use-public-rspm: true
 
+      - name: Check analysis dependencies
+        run: |
+          Rscript -e 'needed <- setdiff(c("MASS", "cluster"), rownames(installed.packages())); if (length(needed)) install.packages(needed, repos = "https://cloud.r-project.org"); stopifnot(requireNamespace("MASS", quietly = TRUE), requireNamespace("cluster", quietly = TRUE))'
+
       - name: Run multivariate analysis
         run: Rscript "analysis/M5Assign 5.1 Data__Ronggon_Asif.R"
 
@@ -40,7 +44,20 @@ jobs:
         run: |
           mkdir -p submission
           cp "analysis/M5Assign 5.1 Data__Ronggon_Asif.R" "submission/M5Assign 5.1 Data__Ronggon_Asif.R"
+          cp data/processed/QKD_Coexistence_0km_Combined.csv "submission/M5Assign 5.1 Data__Ronggon_Asif.csv"
           cp report/report.pdf "submission/M5Assign 5.1 Report__Ronggon_Asif.pdf"
+          test -s "submission/M5Assign 5.1 Data__Ronggon_Asif.R"
+          test -s "submission/M5Assign 5.1 Data__Ronggon_Asif.csv"
+          test -s "submission/M5Assign 5.1 Report__Ronggon_Asif.pdf"
+
+      - name: Verify standalone submitted script and dataset
+        run: |
+          verify_dir=$(mktemp -d)
+          cp "submission/M5Assign 5.1 Data__Ronggon_Asif.R" "$verify_dir/"
+          cp "submission/M5Assign 5.1 Data__Ronggon_Asif.csv" "$verify_dir/"
+          (cd "$verify_dir" && Rscript "M5Assign 5.1 Data__Ronggon_Asif.R")
+          cmp results/pca_variance.csv "$verify_dir/results/pca_variance.csv"
+          cmp results/lda_confusion_matrix.csv "$verify_dir/results/lda_confusion_matrix.csv"
 
       - name: Save downloadable analysis and submission
         uses: actions/upload-artifact@v7
