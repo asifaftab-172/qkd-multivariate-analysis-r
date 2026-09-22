@@ -136,9 +136,13 @@ pdf("figures/01_scatterplot_matrix.pdf", width = 7.2, height = 7.2)
 pairs(X,
       col = adjustcolor(condition_cols[cond_idx], alpha.f = 0.35),
       pch = 16, cex = 0.45,
+      oma = c(6, 4, 4, 2),
       main = "Scatterplot Matrix of QKD Performance Variables")
-legend("topright", legend = cond_levels, col = condition_cols, pch = 16,
-       cex = 0.72, bty = "n")
+# Draw the key in its own strip, outside the scatterplot panels.
+par(fig = c(0, 1, 0, 0.12), mar = c(0, 0, 0, 0), new = TRUE)
+plot.new()
+legend("center", legend = cond_levels, col = condition_cols, pch = 16,
+       cex = 0.85, bty = "n", horiz = TRUE)
 dev.off()
 
 pdf("figures/02_correlation_matrix.pdf", width = 6.3, height = 5.5)
@@ -151,7 +155,8 @@ axis(1, at = 1:ncol(cor_mat), labels = colnames(cor_mat), las = 2)
 axis(2, at = 1:ncol(cor_mat), labels = rev(rownames(cor_mat)), las = 2)
 for (i in seq_len(nrow(cor_mat))) {
   for (j in seq_len(ncol(cor_mat))) {
-    text(j, nrow(cor_mat) - i + 1, sprintf("%.2f", cor_mat[i, j]), cex = 0.95)
+    text(j, nrow(cor_mat) - i + 1, sprintf("%.2f", cor_mat[i, j]),
+         cex = 0.95, col = if (abs(cor_mat[i, j]) > 0.6) "white" else "black")
   }
 }
 box()
@@ -217,7 +222,14 @@ scores <- as.data.frame(pca$x)
 scores$NoiseCondition <- dat$NoiseCondition
 
 pdf("figures/06_pca_biplot.pdf", width = 7.2, height = 5.8)
+load <- pca$rotation[, 1:2, drop = FALSE]
+arrow_scale <- 0.78 * min(diff(range(scores$PC1)) / diff(range(load[,1])),
+                          diff(range(scores$PC2)) / diff(range(load[,2])))
+# Include loading arrows and their labels as well as observation scores.
+biplot_xlim <- extendrange(c(scores$PC1, load[,1] * arrow_scale * 1.18))
+biplot_ylim <- extendrange(c(scores$PC2, load[,2] * arrow_scale * 1.18))
 plot(scores$PC1, scores$PC2, type = "n",
+     xlim = biplot_xlim, ylim = biplot_ylim,
      xlab = sprintf("PC1 (%.1f%%)", 100 * pca_var[1]),
      ylab = sprintf("PC2 (%.1f%%)", 100 * pca_var[2]),
      main = "PCA Biplot of QKD Coexistence Measurements")
@@ -227,9 +239,6 @@ for (i in seq_along(cond_levels)) {
          col = adjustcolor(condition_cols[i], alpha.f = 0.45), cex = 0.65)
 }
 # Loading arrows, scaled to score space.
-load <- pca$rotation[, 1:2, drop = FALSE]
-arrow_scale <- 0.78 * min(diff(range(scores$PC1)) / diff(range(load[,1])),
-                          diff(range(scores$PC2)) / diff(range(load[,2])))
 arrows(0, 0, load[,1] * arrow_scale, load[,2] * arrow_scale,
        length = 0.08, lwd = 1.6)
 text(load[,1] * arrow_scale * 1.08, load[,2] * arrow_scale * 1.08,
