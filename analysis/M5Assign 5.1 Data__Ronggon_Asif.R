@@ -156,7 +156,7 @@ write.csv(cor_mat, "results/correlation_matrix.csv")
 open_plot("01_scatterplot_matrix.pdf", 8, 7.4)
 pairs(X, labels = unname(variable_labels), pch = 16, cex = 0.38,
       col = adjustcolor(condition_cols[cond_idx], 0.3), oma = c(5, 3, 4, 2),
-      main = "Three measurements, one joint performance pattern",
+      main = "",
       gap = 0.65, cex.labels = 1.05)
 par(fig = c(0, 1, 0, 0.105), mar = c(0, 0, 0, 0), new = TRUE)
 plot.new()
