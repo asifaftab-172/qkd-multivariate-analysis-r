@@ -40,7 +40,7 @@ Task 4 requests **linear discriminant analysis** using `MASS::lda()`. The rubric
 | 4.4 Scores and separation plot | Discriminant scores and `11_lda_separation.pdf`; interpret separation and overlap. |
 | 4.5 Classification evaluation | Held-out confusion matrix (`12_lda_confusion_matrix.pdf`) with counts and row percentages, overall accuracy, and class-specific metrics. Axis labels identify actual and predicted classes. |
 | 4.6 Interpret misclassification | Identify difficult pairs/classes from the actual matrix and qualify the within-campaign evaluation. |
-| Rubric regression requirement | `cbind(QBER, LogSKR) ~ Attenuation_c * NoiseCondition`, multivariate tests, coefficients, fit, `14_regression_fits.pdf`, and `15_regression_diagnostics.pdf`. |
+| Rubric regression requirement | `cbind(QBER, LogSKR) ~ VOA_c * NoiseCondition`, multivariate tests, coefficients, fit, `14_regression_fits.pdf`, and `15_regression_diagnostics.pdf`. |
 | Interdisciplinary purpose | Connect network engineering with statistical learning, reliability, and secure-communication decisions; discuss implications and the limits of claims. |
 
 The report must interpret the numerical results and diagnostics; merely generating the listed files is not sufficient coverage.

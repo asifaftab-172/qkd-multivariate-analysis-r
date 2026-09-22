@@ -5,7 +5,7 @@
 \usepackage{graphicx,booktabs,array,tabularx}
 \usepackage{amsmath,amssymb}
 \usepackage{xcolor,caption,subcaption,microtype}
-\usepackage{enumitem,fancyhdr,titlesec,placeins,needspace}
+\usepackage{enumitem,fancyhdr,titlesec,placeins,needspace,float}
 \usepackage[hidelinks]{hyperref}
 \definecolor{navy}{HTML}{19344C}
 \definecolor{teal}{HTML}{147D86}
@@ -32,7 +32,7 @@
 \input{../results/results.tex}
 \newcommand{\metric}[2]{\begin{minipage}[t]{0.29\linewidth}\centering\sffamily\color{teal}\LARGE\bfseries #1\par\vspace{3pt}\small\normalfont\color{ink}#2\end{minipage}}
 \newcommand{\fullfigure}[3]{\begin{figure}[!htbp]\centering\includegraphics[width=#2\linewidth]{../figures/#1}\caption{#3}\end{figure}}
-\newcommand{\resulttable}[2]{\begin{table}[!htbp]\centering\small\caption{#2}\input{../results/#1}\end{table}}
+\newcommand{\resulttable}[2]{\begin{table}[H]\centering\small\caption{#2}\input{../results/#1}\end{table}}
 \begin{document}
 \thispagestyle{empty}
 {\sffamily\small\color{teal}\bfseries MULTIVARIATE ANALYSIS IN R\par}
@@ -138,6 +138,7 @@ The retention rule is the smallest number of components reaching at least 80\% c
 Explained variance measures reconstruction, not classification accuracy. A low-variance direction may still matter for distinguishing groups or rare operating states. LDA therefore retains all three predictors rather than automatically discarding the smaller PCs.
 \FloatBarrier
 
+\Needspace{8\baselineskip}
 \section{Cluster analysis}
 \subsection{K-means and Ward hierarchical clustering}
 Both methods use the three standardized variables with Euclidean geometry. K-means minimizes squared distance to centroids and uses multiple random starts to reduce initialization sensitivity. Ward's \texttt{ward.D2} method joins groups to limit the increase in within-cluster variation. Neither fit uses condition labels.
@@ -146,10 +147,11 @@ K-means candidates span $k=1,\ldots,10$. The elbow estimate uses the largest dev
 
 \begin{figure}[!htbp]
 \centering
-\begin{subfigure}[t]{0.47\linewidth}\centering
+\begin{subfigure}[t]{0.98\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/07_elbow_method.pdf}
-\caption{K-means selection evidence.}\end{subfigure}\hfill
-\begin{subfigure}[t]{0.51\linewidth}\centering
+\caption{K-means selection evidence.}\end{subfigure}
+\par\medskip
+\begin{subfigure}[t]{0.82\linewidth}\centering
 \includegraphics[width=\linewidth]{../figures/09_hierarchical_dendrogram.pdf}
 \caption{Ward hierarchy and selected cut.}\end{subfigure}
 \caption{Cluster-number assessment: diminishing returns in the elbow plot and larger merges in the hierarchy provide complementary evidence.}
@@ -214,7 +216,15 @@ Outcome-specific coefficients and fit summaries are complemented by joint tests 
 \FloatBarrier
 
 \fullfigure{14_regression_fits.pdf}{0.98}{Observed performance and regression fits over attenuation. Lines describe modeled associations within the observed domain, not physical response laws or extrapolation guarantees.}
-\fullfigure{15_regression_diagnostics.pdf}{0.98}{Regression diagnostics assess the linear, constant-variance, Gaussian-error approximation.}
+\FloatBarrier
+\clearpage
+\subsection{What the diagnostics reveal}
+\begin{figure}[H]
+\centering\includegraphics[width=0.98\linewidth]{../figures/15_regression_diagnostics.pdf}
+\caption{Residual curvature and quantile departures expose limitations of the linear, constant-variance, Gaussian-error approximation.}
+\end{figure}
+
+The QBER residual smoother is U-shaped: fitted error rates tend to be too low at the ends and too high in the middle. The LogSKR smoother forms an inverted arch, with large negative residuals near fitted values of 2--3 where measured throughput has collapsed. Residual spread changes across the fitted range. Both normal Q--Q plots depart from the reference line, particularly the lower tail of LogSKR. These observed patterns show that the substantial in-sample $R^2$ values do not validate the linear-Gaussian assumptions.
 
 The linear form is an interpretable starting point, not a physical model of key-generation collapse. Residual curvature signals missing structure, changing spread challenges constant variance, and quantile-plot departures challenge normal-error inference. QBER is bounded and LogSKR has a mass at zero. Repeated within-setting measurements also weaken independent-error assumptions. Nominal standard errors and $p$-values are therefore exploratory. Run-level replication, flexible attenuation effects, and explicit modeling of zero throughput would strengthen follow-up analysis.
 \FloatBarrier
