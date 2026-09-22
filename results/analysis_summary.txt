@@ -1,0 +1,12 @@
+Observations: 2110
+Missing values: 0
+PC1 variance explained: 92.46%
+PC2 variance explained: 6.35%
+PC1+PC2 cumulative variance: 98.81%
+PCs needed for >=80% variance: 1
+Largest absolute PC1 loading: QBER
+Largest absolute PC2 loading: VOA_dB
+Selected k by elbow geometry: 3
+LDA held-out accuracy: 37.64%
+Largest absolute LD1 coefficient: LogSKR_z
+Largest absolute LD2 coefficient: QBER_z
