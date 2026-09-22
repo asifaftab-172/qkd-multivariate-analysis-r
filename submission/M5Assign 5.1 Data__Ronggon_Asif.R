@@ -442,7 +442,7 @@ for (i in 1:5) for (j in 1:5) {
   y <- 6 - i
   rect(j - 0.5, y - 0.5, j + 0.5, y + 0.5, col = heat_cols[round(100 * row_prop[i, j]) + 1],
        border = "white", lwd = 2)
-  txt_col <- if (row_prop[i, j] >= 0.45) "white" else ink
+  txt_col <- if (row_prop[i, j] >= 0.68) "white" else ink
   text(j, y + 0.11, conf[i, j], cex = 1.18, font = 2, col = txt_col)
   text(j, y - 0.17, sprintf("%.1f%%", 100 * row_prop[i, j]), cex = 0.87, col = txt_col)
   if (i == j) rect(j - 0.46, y - 0.46, j + 0.46, y + 0.46,
@@ -519,7 +519,7 @@ reg_slopes <- do.call(rbind, lapply(cond_levels, function(g) {
 }))
 write.csv(reg_slopes, "results/regression_condition_slopes.csv", row.names = FALSE)
 open_plot("14_regression_fits.pdf", 10, 5.4)
-par(mfrow = c(1, 2), mar = c(4.7, 4.5, 4.2, 1), oma = c(2.3, 0, 0, 0))
+par(mfrow = c(1, 2), mar = c(4.7, 4.5, 4.2, 1), oma = c(4.5, 0, 0, 0))
 for (response in outcomes) {
   plot(dat$VOA_dB, dat[[response]], type = "n", xlab = "Attenuation (dB)",
        ylab = if (response == "QBER") "QBER" else "log10(SKR + 1)",
@@ -536,7 +536,7 @@ for (response in outcomes) {
   subtitle(sprintf("Within-sample R-squared = %.3f; lines limited to each observed range",
                    reg_summary$R_squared[reg_summary$Outcome == response]))
 }
-par(fig = c(0, 1, 0, 0.075), mar = c(0, 0, 0, 0), new = TRUE)
+par(fig = c(0, 1, 0, 0.10), oma = c(0, 0, 0, 0), mar = c(0, 0, 0, 0), new = TRUE)
 plot.new()
 legend("center", cond_levels, col = condition_cols, lty = 1, lwd = 2, bty = "n", horiz = TRUE, cex = 0.9)
 dev.off()
